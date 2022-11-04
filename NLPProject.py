@@ -56,3 +56,11 @@ def remove_html(text):
 df["Message_clean"] = df["Message_clean"].apply(lambda text: remove_html(text))
 # View changes
 df.head()
+
+# Import word_tokenize from nltk
+from nltk.tokenize import word_tokenize
+
+nltk.download('punkt')
+# Tokenize cleaned messages
+df['Message_tokenized'] = df.apply(lambda x: nltk.word_tokenize(x['Message_clean']), axis=1)
+df.head()
