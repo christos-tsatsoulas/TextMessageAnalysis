@@ -72,7 +72,7 @@ df.to_csv('processed_clean_nus_sms.csv', header = True)
 import matplotlib.pyplot as plt
 import seaborn as sns
 # Magic function for plotting in notebook
-%matplotlib inline
+#%matplotlib inline
 
 # Count the number of unique countries
 df['country'].nunique()
@@ -193,3 +193,39 @@ sentiment_features = [word for (word, freq) in all_tokens.most_common(10000)]
 
 #check what this list looks like
 sentiment_features[:5]
+
+#create a feature extractor that identifies when a feature is present in a message 
+def document_features(document, sentiment_features):
+    #make a set list of all the tokens in a message
+    document_tokens = set(document)
+    features = {}
+    #for all my features, check if that feature is in my target message
+    for token in sentiment_features:
+        #make a dictionary for each message 
+        features[token] = (token in document_tokens)
+    return features
+
+#test it on a sample sentence
+# test_sentence = "riding a motorcycle is fun :)".split(" ")
+# print(document_features(test_sentence, sentiment_features))
+
+# Import random library
+import random
+
+# Create positive and negative datasets from my lists of tokenized tweets
+positive_tw = [(tweet, "Positive") for tweet in positive_cleaned_tweets_list]
+negative_tw = [(tweet, "Negative") for tweet in negative_cleaned_tweets_list]
+
+# Create the combined dataset
+all_labeled_tweets = positive_tw + negative_tw
+
+#initialize the random number so I get the same result every time
+random.seed(42)
+# Shuffle the order of the dataset NOTE that the random method applies in place
+random.shuffle(all_labeled_tweets)
+
+#create a list of (token, sentiment) pairs for all the features in the tweets
+feature_set = [(document_features(d, sentiment_features),c) for (d,c) in all_labeled_tweets]
+# Separate the dataset into the training and testing sets
+train_set, test_set = feature_set[:7000], feature_set[7000:]
+
