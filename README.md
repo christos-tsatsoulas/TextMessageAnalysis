@@ -20,3 +20,7 @@ Analyzing text message data using Natural Language Processing techniques and lib
 3. Exploratory Data Analysis
 
 4. Sentiment Analysis
+
+5. Ploting Results
+
+`Jupyter` notebook walks throuth the proccess.
