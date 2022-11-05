@@ -229,3 +229,73 @@ feature_set = [(document_features(d, sentiment_features),c) for (d,c) in all_lab
 # Separate the dataset into the training and testing sets
 train_set, test_set = feature_set[:7000], feature_set[7000:]
 
+# Import classify and sentiment analysis model
+from nltk import classify
+from nltk import NaiveBayesClassifier
+
+# Instantiate a classifier and train on training data (this will take awhile)
+classifier = nltk.NaiveBayesClassifier.train(train_set)
+
+# Evaluate the model with classify() function
+print("Accuracy is:", classify.accuracy(classifier, test_set))
+
+#Show the 20 most informative features for prediction
+#print(classifier.show_most_informative_features(20))
+
+# Select one sample message to evaluate
+sample_message = str(df["Message_tokenized"][49])
+print(sample_message)
+
+# Print prediction of sentiment
+#print(classifier.classify(dict([token, True] for token in sample_message)))
+
+# Create an empty list
+sentiments = []
+
+# Iterate through the column and predict each response's sentiment, append 
+# sentiment to new list
+for message in df['Message_tokenized']:
+    sentiments.append(str((classifier.classify(dict([token, True] for token in message)))))
+
+# add the list back to our DataFrame
+df['Sentiment'] = sentiments
+
+df['Sentiment'].value_counts()
+
+# View the proportion of the corpus in each class
+df['Sentiment'].value_counts(normalize = True)
+
+# View distribution in a countplot
+sns.countplot(x='Sentiment', data=df, palette='RdBu')
+
+# Define a function to convert sentiment into binary values
+def convert_sentiment(sentiment):
+    """
+    Takes in sentiments, and converts them to binary values.
+    """
+    if sentiment == 'Positive':
+        return 1
+    else:
+        return -1
+
+# Create new feature based on the values returned from function
+df['Sentiment_score'] = df['Sentiment'].apply(convert_sentiment)
+
+#check 
+#df.head()
+
+#create a new dataframe grouped by countries and aggregated by the mean.
+df_sent = df.groupby(['country']).mean()
+
+#reset the index
+df_sent.reset_index(inplace=True)
+
+df_sent.head()
+
+# Sort DataFrame by Sentiment_score
+df_sent.sort_values(by='Sentiment_score') 
+
+# Plot general sentiments
+fig, ax = plt.subplots(figsize=(40,15))
+sns.barplot(x='country', y='Sentiment_score', data=df_sent, ax=ax,
+                 color="lightseagreen")
